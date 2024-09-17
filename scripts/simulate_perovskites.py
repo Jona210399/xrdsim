@@ -51,7 +51,6 @@ def extract_single_structure():
 
 def plot_dos():
     import matplotlib.pyplot as plt
-    import numpy as np
 
     with open("results/single_perovskite.json", "r") as file:
         data = json.load(file)
