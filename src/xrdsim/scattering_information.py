@@ -9,13 +9,13 @@ from xrdsim.constants import ATOMIC_SCATTERING_PARAMS
 
 @dataclass
 class ScatteringInformation:
-    atomic_numbers: NDArray
-    scattering_parameters: NDArray
-    fractional_coordinates: NDArray
-    site_occupations: NDArray
-    debyewaller_factors: NDArray
-    hkls: NDArray
-    g_hkls: NDArray
+    atomic_numbers: NDArray  # Shape: (m)
+    scattering_parameters: NDArray  # Shape: (m, 4, 2)
+    fractional_coordinates: NDArray  # Shape: (m, 3)
+    site_occupations: NDArray  # Shape: (m)
+    debyewaller_factors: NDArray  # Shape: (m)
+    hkls: NDArray  # Shape: (p, 3)
+    g_hkls: NDArray  # Shape: (p)
 
     @classmethod
     def from_structure(
