@@ -11,7 +11,7 @@ authors = ["Jona Östreicher <jona.oestreicher@kit.edu>"]
 maintainers = ["Jona Östreicher <jona.oestreicher@kit.edu>"]
 readme = "README.md"
 packages = [
-    { include = "src/xrdsim" }
+    { include = "xrdsim", from = "src" }
 ]
 include = [
     "README.md",
@@ -26,12 +26,4 @@ tqdm = "^4.66.5"
 torch = {version = "^2.4.1", optional = true}
 
 [tool.poetry.extras]
-torch = ["torchxrdsim) [oestreicher1@jwlogin22 xrdsim]$ poetry install --extras "torch"
-
-The Poetry configuration is invalid:
-  - data.extras.torch[0] must match pattern ^[a-zA-Z-_.0-9]+$
-xrdsim) [oestreicher1@jwlogin22 xrdsim]$ poetry install --extras "torch"
-
-The Poetry configuration is invalid:
-  - data.extras.torch[0] must match pattern ^[a-zA-Z-_.0-9]+$
-"]
+torch = ["torch"]

@@ -1,8 +1,7 @@
 # XRD Simulation Library
 ## Installation
 ```shell
-pip install poetry
-poetry install
+pip install .
 ```
 in the root of this repository.
 
