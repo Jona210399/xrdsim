@@ -1,8 +1,10 @@
+from dataclasses import asdict
+
 import numba
 import numpy as np
 from numpy.typing import NDArray
-from pymatgen.core.structure import Structure
-from dataclasses import asdict
+from pymatgen.core import Lattice, Structure
+
 from xrdsim.constants import SCALED_INTENSITY_TOL, TWO_THETA_TOL
 from xrdsim.scattering_information import ScatteringInformation
 
@@ -25,13 +27,39 @@ class NumbaXRDPeakCalculator:
     ]:
         si = ScatteringInformation.from_structure(
             structure,
+        )
+        hkls, g_hkls = self.get_hkls(structure.lattice)
+
+        peak_two_thetas, peak_intensities = self.get_peaks(
             self.wavelength,
-            self.angle_range,
+            **si.to_ndarrays(),
+            hkls=hkls,
+            g_hkls=g_hkls,
         )
 
-        peak_two_thetas, peak_intensities = self.get_peaks(self.wavelength,**asdict(si))
-
         return peak_two_thetas, peak_intensities
+
+    def get_hkls(self, lattice: Lattice) -> tuple[NDArray, NDArray]:
+        angles = np.deg2rad(np.array(*self.angle_range[:2], dtype=np.float64) / 2)
+        min_r, max_r = 2 * np.sin(angles) / self.wavelength
+        recip_latt = lattice.reciprocal_lattice_crystallographic
+
+        hkls, g_hkls, _, _ = recip_latt.get_points_in_sphere(
+            [[0, 0, 0]],
+            [0, 0, 0],
+            max_r,
+            zip_results=False,
+        )
+        valid_mask = g_hkls >= min_r
+        hkls, g_hkls = hkls[valid_mask], g_hkls[valid_mask]
+
+        sorted_indices = np.argsort(g_hkls)
+        hkls, g_hkls = hkls[sorted_indices], g_hkls[sorted_indices]
+
+        non_zero_mask = np.nonzero(g_hkls)
+        hkls, g_hkls = hkls[non_zero_mask], g_hkls[non_zero_mask]
+
+        return np.round(hkls), g_hkls
 
     @staticmethod
     @numba.njit(cache=True, fastmath=True)

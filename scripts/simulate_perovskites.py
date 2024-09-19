@@ -4,7 +4,23 @@ from pathlib import Path
 from pymatgen.core.structure import Structure
 from tqdm import tqdm
 
-from xrdsim.calculators import get_default_numpy_xrd_calculator
+from xrdsim.calculator import get_default_numpy_xrd_calculator
+
+
+def simulate_sunmat_perovskites():
+    path = Path.cwd().parent.parent
+    with open(path.joinpath("inorganic_SUNMAT_10k.json"), "r") as file:
+        data = json.load(file)
+
+    xrd_calculator = get_default_numpy_xrd_calculator()
+    for i in tqdm(range(len(data)), desc="Calculating XRD"):
+        item = data[i]
+        structure = Structure.from_dict(item["crystal_structure"])
+        xrd_intensities = xrd_calculator.calculate(structure).tolist()
+        item["xrd"] = xrd_intensities
+
+    with open("results/inorganic_SUNMAT_10k_with_xrds.json", "w") as file:
+        json.dump(data, file)
 
 
 def simulate_materials_project_perovskites():
@@ -64,7 +80,11 @@ def plot_dos():
 
 
 if __name__ == "__main__":
+
     # simulate_materials_project_perovskites()
     # inspect_xrds()
     # extract_single_structure()
-    plot_dos()
+    # plot_dos()
+    # simulate_sunmat_perovskites()
+
+    pass

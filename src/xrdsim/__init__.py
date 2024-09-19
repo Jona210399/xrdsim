@@ -1,1 +1,1 @@
-from xrdsim.calculators import XRDCalculator, get_default_numpy_xrd_calculator
+from xrdsim.calculator import XRDCalculator, get_default_numpy_xrd_calculator
