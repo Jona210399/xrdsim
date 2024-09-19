@@ -4,7 +4,7 @@ from pathlib import Path
 from pymatgen.core.structure import Structure
 from tqdm import tqdm
 
-from xrdsim.calculators import get_default_numpy_xrd_calculator
+from xrdsim.calculator import get_default_numpy_xrd_calculator
 
 
 def simulate_materials_project_perovskites():
