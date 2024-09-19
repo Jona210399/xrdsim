@@ -1,21 +1,24 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 import numpy as np
+import torch
 from numpy.typing import NDArray
 from pymatgen.core.structure import Structure
 
 from xrdsim.constants import ATOMIC_SCATTERING_PARAMS
 
+NDArrayOrTensor = NDArray | torch.Tensor
+
 
 @dataclass
 class ScatteringInformation:
-    atomic_numbers: NDArray  # Shape: (m)
-    scattering_parameters: NDArray  # Shape: (m, 4, 2)
-    fractional_coordinates: NDArray  # Shape: (m, 3)
-    site_occupations: NDArray  # Shape: (m)
-    debyewaller_factors: NDArray  # Shape: (m)
-    hkls: NDArray  # Shape: (p, 3)
-    g_hkls: NDArray  # Shape: (p)
+    atomic_numbers: NDArrayOrTensor  # Shape: (m)
+    scattering_parameters: NDArrayOrTensor  # Shape: (m, 4, 2)
+    fractional_coordinates: NDArrayOrTensor  # Shape: (m, 3)
+    site_occupations: NDArrayOrTensor  # Shape: (m)
+    debyewaller_factors: NDArrayOrTensor  # Shape: (m)
+    hkls: NDArrayOrTensor  # Shape: (p, 3)
+    g_hkls: NDArrayOrTensor  # Shape: (p)
 
     @classmethod
     def from_structure(
@@ -77,4 +80,15 @@ class ScatteringInformation:
             np.array(dw_factors),
             hkls,
             g_hkls,
+        )
+
+    def to_tensor(
+        self, device: torch.device, dtype: torch.dtype
+    ) -> "ScatteringInformation":
+
+        return ScatteringInformation(
+            **{
+                k: torch.from_numpy(v).to(device=device, dtype=dtype)
+                for k, v in asdict(self).items()
+            }
         )
