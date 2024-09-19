@@ -10,3 +10,4 @@ in the root of this repository.
 |---------------------|-----------------|
 | Wavelength          | Ångströms (Å)   |
 | Crystallite Size    | Ångströms (Å)   |
+| Angles              | Degrees         |
