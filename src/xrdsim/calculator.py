@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Any, Protocol
 
 import numpy as np
 from numpy.typing import NDArray
@@ -19,6 +19,8 @@ from xrdsim.numpy.peak_profiles import GaussianProfile, GaussianScherrerProfile
 class PeakCalculator(Protocol):
     def calculate(structure: Structure) -> tuple[NDArray, NDArray]: ...
 
+    def get_metadata() -> dict[str, Any]: ...
+
 
 class PeakProfile(Protocol):
     def convolute_peaks(
@@ -27,6 +29,8 @@ class PeakProfile(Protocol):
         *args,
         **kwargs,
     ) -> tuple[NDArray, NDArray]: ...
+
+    def get_metadata() -> dict[str, Any]: ...
 
 
 class XRDCalculator:
@@ -40,7 +44,9 @@ class XRDCalculator:
         self.peak_calculator = peak_calculator
         self.peak_profile = peak_profile
 
-    def calculate(self, structure: Structure) -> tuple[NDArray, NDArray]:
+    def calculate(
+        self, structure: Structure
+    ) -> tuple[NDArray, NDArray, dict[str, Any]]:
         peak_two_thetas, peak_intensities = self.peak_calculator.calculate(structure)
 
         two_thetas, intensities = self.peak_profile.convolute_peaks(
@@ -51,7 +57,13 @@ class XRDCalculator:
         if self.rescale_intensity:
             intensities = intensities / np.max(intensities)
 
-        return two_thetas, intensities
+        metadata = {
+            "rescale_intensity": self.rescale_intensity,
+            **self.peak_calculator.get_metadata(),
+            **self.peak_profile.get_metadata(),
+        }
+
+        return two_thetas, intensities, metadata
 
 
 def get_default_numpy_xrd_calculator() -> XRDCalculator:

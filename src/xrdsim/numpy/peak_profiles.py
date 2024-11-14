@@ -1,8 +1,11 @@
+from typing import Any
+
 import numba
 import numpy as np
 from numpy.typing import NDArray
 
 from xrdsim.numpy.crystallite_size import CrystalliteSizeSampler
+
 
 class NoOPProfile:
     def __init__(self):
@@ -11,6 +14,9 @@ class NoOPProfile:
     @staticmethod
     def convolute_peaks(peaks_x: NDArray, peaks_y: NDArray) -> tuple[NDArray, NDArray]:
         return peaks_x, peaks_y
+
+    def get_metadata(self):
+        return {}
 
 
 class GaussianProfile:
@@ -30,6 +36,12 @@ class GaussianProfile:
             sigmas,
             self.x_range,
         )
+
+    def get_metadata(self):
+        return {
+            "profile": "gaussian",
+            "x_range": self.x_range,
+        }
 
     @staticmethod
     @numba.njit(cache=True)
@@ -73,6 +85,7 @@ class GaussianScherrerProfile:
     ):
 
         crystallite_size = self.crystallite_size_sampler.sample()
+        self.crystallite_size = crystallite_size
 
         sigmas = self.scherrer_equation(
             peaks_x,
@@ -82,6 +95,17 @@ class GaussianScherrerProfile:
         )
 
         return self.gaussian_profile.convolute_peaks(peaks_x, peaks_y, sigmas)
+
+    def get_metadata(self) -> dict[str, Any]:
+        return {
+            **self.gaussian_profile.get_metadata(),
+            **{
+                "profile": "gaussian_scherrer",
+                "shape_factor": self.shape_factor,
+                "wavelength": self.wavelength,
+                "crystallite_size": self.crystallite_size,
+            },
+        }
 
     @staticmethod
     @numba.njit(cache=True)
