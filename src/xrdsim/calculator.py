@@ -26,7 +26,7 @@ class PeakProfile(Protocol):
         peak_y: NDArray,
         *args,
         **kwargs,
-    ) -> NDArray: ...
+    ) -> tuple[NDArray, NDArray]: ...
 
 
 class XRDCalculator:
@@ -40,11 +40,10 @@ class XRDCalculator:
         self.peak_calculator = peak_calculator
         self.peak_profile = peak_profile
 
-    def calculate(self, structure: Structure) -> np.ndarray:
-
+    def calculate(self, structure: Structure) -> tuple[NDArray, NDArray]:
         peak_two_thetas, peak_intensities = self.peak_calculator.calculate(structure)
 
-        intensities = self.peak_profile.convolute_peaks(
+        two_thetas, intensities = self.peak_profile.convolute_peaks(
             peak_two_thetas,
             peak_intensities,
         )
@@ -52,7 +51,7 @@ class XRDCalculator:
         if self.rescale_intensity:
             intensities = intensities / np.max(intensities)
 
-        return intensities
+        return two_thetas, intensities
 
 
 def get_default_numpy_xrd_calculator() -> XRDCalculator:

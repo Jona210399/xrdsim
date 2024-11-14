@@ -4,6 +4,14 @@ from numpy.typing import NDArray
 
 from xrdsim.numpy.crystallite_size import CrystalliteSizeSampler
 
+class NoOPProfile:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def convolute_peaks(peaks_x: NDArray, peaks_y: NDArray) -> tuple[NDArray, NDArray]:
+        return peaks_x, peaks_y
+
 
 class GaussianProfile:
     def __init__(self, x_range: tuple[float, float, int]):
@@ -42,7 +50,7 @@ class GaussianProfile:
             )
             ys += y
 
-        return ys
+        return xs, ys
 
 
 class GaussianScherrerProfile:

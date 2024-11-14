@@ -16,8 +16,8 @@ def simulate_sunmat_perovskites():
     for i in tqdm(range(len(data)), desc="Calculating XRD"):
         item = data[i]
         structure = Structure.from_dict(item["crystal_structure"])
-        xrd_intensities = xrd_calculator.calculate(structure).tolist()
-        item["xrd"] = xrd_intensities
+        _, xrd_intensities = xrd_calculator.calculate(structure)
+        item["xrd"] = xrd_intensities.tolist()
 
     with open("results/inorganic_SUNMAT_10k_with_xrds.json", "w") as file:
         json.dump(data, file)
@@ -32,8 +32,8 @@ def simulate_materials_project_perovskites():
     for i in tqdm(range(len(data)), desc="Calculating XRD"):
         item = data[i]
         structure = Structure.from_dict(item["crystal_structure"])
-        xrd_intensities = xrd_calculator.calculate(structure).tolist()
-        item["xrd"] = xrd_intensities
+        _, xrd_intensities = xrd_calculator.calculate(structure)
+        item["xrd"] = xrd_intensities.tolist()
 
     with open("results/perovskite_data_with_xrds.json", "w") as file:
         json.dump(data, file)
