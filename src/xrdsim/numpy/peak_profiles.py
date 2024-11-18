@@ -16,7 +16,7 @@ class NoOPProfile:
         return peaks_x, peaks_y
 
     def get_metadata(self):
-        return {}
+        return {"profile": "peaks_only"}
 
 
 class GaussianProfile:
