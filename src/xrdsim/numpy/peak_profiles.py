@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 from xrdsim.numpy.crystallite_size import CrystalliteSizeSampler
 
 
-class NoOPProfile:
+class PeaksOnlyProfile:
     def __init__(self):
         pass
 
