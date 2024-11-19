@@ -38,7 +38,7 @@ class NumbaXRDPeakCalculator:
         return peak_two_thetas, peak_intensities
 
     def get_hkls(self, lattice: Lattice) -> tuple[NDArray, NDArray]:
-        angles = np.deg2rad(np.array(*self.angle_range[:2], dtype=np.float64) / 2)
+        angles = np.deg2rad(np.array(self.angle_range[:2], dtype=np.float32) / 2)
         min_r, max_r = 2 * np.sin(angles) / self.wavelength
         recip_latt = lattice.reciprocal_lattice_crystallographic
 
