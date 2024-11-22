@@ -11,7 +11,7 @@ class NumbaXRDPeakCalculator:
     def __init__(
         self,
         wavelength: float,
-        angle_range: tuple[float, float, int],
+        angle_range: tuple[float, float],
     ):
         self.wavelength = wavelength
         self.angle_range = angle_range

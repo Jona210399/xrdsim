@@ -13,7 +13,11 @@ from xrdsim.constants import (
 )
 from xrdsim.numpy.crystallite_size import UniformCrystalliteSampler
 from xrdsim.numpy.peak_calculator import NumbaXRDPeakCalculator
-from xrdsim.numpy.peak_profiles import GaussianProfile, GaussianScherrerProfile
+from xrdsim.numpy.peak_profiles import (
+    GaussianProfile,
+    GaussianScherrerProfile,
+    PeaksOnlyProfile,
+)
 
 
 class PeakCalculator(Protocol):
@@ -81,4 +85,15 @@ def get_default_numpy_xrd_calculator() -> XRDCalculator:
             ),
         ),
         rescale_intensity=DEFAULT_RESCALE_INTENSITY,
+    )
+
+
+def get_unconvoluted_numpy_xrd_calculator() -> XRDCalculator:
+    return XRDCalculator(
+        peak_calculator=NumbaXRDPeakCalculator(
+            wavelength=DEFAULT_WAVELENGTH,
+            angle_range=(0.0, 160.0),
+        ),
+        peak_profile=PeaksOnlyProfile(),
+        rescale_intensity=False,
     )
