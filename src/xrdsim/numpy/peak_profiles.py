@@ -4,7 +4,7 @@ import numba
 import numpy as np
 from numpy.typing import NDArray
 
-from xrdsim.numpy.crystallite_size import CrystalliteSizeSampler
+from xrdsim.numpy.crystallite_size import CrystalliteSizeProvider
 
 
 class PeaksOnlyProfile:
@@ -71,12 +71,12 @@ class GaussianScherrerProfile:
         gaussian_profile: GaussianProfile,
         shape_factor: float,
         wavelength: float,
-        crystallite_size_sampler: CrystalliteSizeSampler,
+        crystallite_size_provider: CrystalliteSizeProvider,
     ) -> None:
         self.gaussian_profile = gaussian_profile
         self.shape_factor = shape_factor
         self.wavelength = wavelength
-        self.crystallite_size_sampler = crystallite_size_sampler
+        self.crystallite_size_provider = crystallite_size_provider
 
     def convolute_peaks(
         self,
@@ -84,7 +84,7 @@ class GaussianScherrerProfile:
         peaks_y: NDArray,
     ):
 
-        crystallite_size = self.crystallite_size_sampler.sample()
+        crystallite_size = self.crystallite_size_provider.get_crystallite_size()
         self.crystallite_size = crystallite_size
 
         sigmas = self.scherrer_equation(

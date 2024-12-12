@@ -24,6 +24,7 @@ numba = "^0.60.0"
 pymatgen = "^2024.9.10"
 tqdm = "^4.66.5"
 torch = {version = "^2.4.1", optional = true}
+seaborn = "^0.13.2"
 
 [tool.poetry.extras]
 torch = ["torch"]

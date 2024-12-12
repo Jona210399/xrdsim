@@ -80,7 +80,7 @@ def get_default_numpy_xrd_calculator() -> XRDCalculator:
             gaussian_profile=GaussianProfile(DEFAULT_ANGLE_RANGE),
             shape_factor=DEFAULT_SHAPEFACTOR,
             wavelength=DEFAULT_WAVELENGTH,
-            crystallite_size_sampler=UniformCrystalliteSampler(
+            crystallite_size_provider=UniformCrystalliteSampler(
                 DEFAULT_CRYSTALLITE_SIZE_RANGE
             ),
         ),

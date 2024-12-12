@@ -3,13 +3,21 @@ from typing import Protocol
 import numpy as np
 
 
-class CrystalliteSizeSampler(Protocol):
-    def sample() -> float: ...
+class CrystalliteSizeProvider(Protocol):
+    def get_crystallite_size() -> float: ...
 
 
-class UniformCrystalliteSampler:
+class UniformCrystalliteSampler(CrystalliteSizeProvider):
     def __init__(self, crystallite_size_range: tuple[float, float]):
         self.crystallite_size_range = crystallite_size_range
 
-    def sample(self) -> float:
+    def get_crystallite_size(self) -> float:
         return np.random.uniform(*self.crystallite_size_range)
+
+
+class ConstantCrystalliteSize(CrystalliteSizeProvider):
+    def __init__(self, crystallite_size: float):
+        self.crystallite_size = crystallite_size
+
+    def get_crystallite_size(self):
+        return self.crystallite_size
