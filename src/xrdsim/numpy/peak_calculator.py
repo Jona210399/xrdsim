@@ -38,7 +38,11 @@ class NumbaXRDPeakCalculator:
         return peak_two_thetas, peak_intensities
 
     def get_hkls(self, lattice: Lattice) -> tuple[NDArray, NDArray]:
+<<<<<<< HEAD
         angles = np.deg2rad(np.array(self.angle_range[:2], dtype=np.float32) / 2)
+=======
+        angles = np.deg2rad(np.array(list(self.angle_range[:2]), dtype=np.float64) / 2)
+>>>>>>> 052928b (minor bugfix in peak claculator and switch from poetry to uv)
         min_r, max_r = 2 * np.sin(angles) / self.wavelength
         recip_latt = lattice.reciprocal_lattice_crystallographic
 
@@ -71,7 +75,6 @@ class NumbaXRDPeakCalculator:
         hkls: NDArray,
         g_hkls: NDArray,
     ) -> tuple[NDArray, NDArray]:
-
         thetas = np.arcsin(wavelength * g_hkls / 2)
         s = g_hkls / 2
         s2 = s**2
