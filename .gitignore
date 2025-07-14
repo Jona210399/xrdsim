@@ -181,3 +181,5 @@ configs/local/default.yaml
 #Custom
 /results/*
 /mattext/
+/slurm
+/scripts/deviated_dataset_creation
