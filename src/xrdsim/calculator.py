@@ -11,7 +11,7 @@ from xrdsim.constants import (
     DEFAULT_SHAPEFACTOR,
     DEFAULT_WAVELENGTH,
 )
-from xrdsim.numpy.crystallite_size import UniformCrystalliteSampler
+from xrdsim.numpy.crystallite_size import UniformCrystalliteSampler, CrystalliteSizeProvider
 from xrdsim.numpy.peak_calculator import NumbaXRDPeakCalculator
 from xrdsim.numpy.peak_profiles import (
     GaussianProfile,
@@ -35,6 +35,8 @@ class PeakProfile(Protocol):
     ) -> tuple[NDArray, NDArray]: ...
 
     def get_metadata() -> dict[str, Any]: ...
+
+    crystallite_size_provider: CrystalliteSizeProvider | None
 
 
 class XRDCalculator:
