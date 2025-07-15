@@ -183,3 +183,4 @@ configs/local/default.yaml
 /mattext/
 /slurm
 /scripts/deviated_dataset_creation
+/scripts/mof_dataset_creation
