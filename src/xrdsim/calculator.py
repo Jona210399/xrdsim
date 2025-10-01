@@ -11,7 +11,10 @@ from xrdsim.constants import (
     DEFAULT_SHAPEFACTOR,
     DEFAULT_WAVELENGTH,
 )
-from xrdsim.numpy.crystallite_size import UniformCrystalliteSampler, CrystalliteSizeProvider
+from xrdsim.numpy.crystallite_size import (
+    CrystalliteSizeProvider,
+    UniformCrystalliteSampler,
+)
 from xrdsim.numpy.peak_calculator import NumbaXRDPeakCalculator
 from xrdsim.numpy.peak_profiles import (
     GaussianProfile,
@@ -24,6 +27,10 @@ class PeakCalculator(Protocol):
     def calculate(structure: Structure) -> tuple[NDArray, NDArray]: ...
 
     def get_metadata() -> dict[str, Any]: ...
+    """Returns additional metadata about the peak calculation which is calculated during the calculation."""
+
+    def get_constant_metadata() -> dict[str, Any]: ...
+    """Returns metadata about the peak calculation which is constant for all calculations with the same parameters."""
 
 
 class PeakProfile(Protocol):
@@ -35,6 +42,8 @@ class PeakProfile(Protocol):
     ) -> tuple[NDArray, NDArray]: ...
 
     def get_metadata() -> dict[str, Any]: ...
+
+    def get_constant_metadata() -> dict[str, Any]: ...
 
     crystallite_size_provider: CrystalliteSizeProvider | None
 
@@ -63,13 +72,19 @@ class XRDCalculator:
         if self.rescale_intensity:
             intensities = intensities / np.max(intensities)
 
-        metadata = {
-            "rescale_intensity": self.rescale_intensity,
-            **self.peak_calculator.get_metadata(),
-            **self.peak_profile.get_metadata(),
-        }
+        metadata = self.get_metadata()
 
         return two_thetas, intensities, metadata
+    
+    def get_metadata(self) -> dict[str, Any]:
+        return {**self.peak_calculator.get_metadata(), **self.peak_profile.get_metadata()}
+    
+    def get_constant_metadata(self) -> dict[str, Any]:
+        return {
+            "rescale_intensity": self.rescale_intensity,
+            **self.peak_calculator.get_constant_metadata(),
+            **self.peak_profile.get_constant_metadata(),
+        }
 
 
 def get_default_numpy_xrd_calculator() -> XRDCalculator:

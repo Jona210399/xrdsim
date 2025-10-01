@@ -119,8 +119,11 @@ class NumbaXRDPeakCalculator:
         intensities = intensities[mask]
 
         return two_thetas, intensities
-
+    
     def get_metadata(self) -> dict[str, float]:
+        return {}
+
+    def get_constant_metadata(self) -> dict[str, float]:
         return {
             "wavelength": self.wavelength,
             "angle_range": self.angle_range,

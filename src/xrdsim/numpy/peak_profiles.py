@@ -15,8 +15,11 @@ class PeaksOnlyProfile:
     def convolute_peaks(peaks_x: NDArray, peaks_y: NDArray) -> tuple[NDArray, NDArray]:
         return peaks_x, peaks_y
 
-    def get_metadata(self):
+    def get_constant_metadata(self):
         return {"profile": "peaks_only"}
+
+    def get_metadata(self):
+        return {}
 
 
 class GaussianProfile:
@@ -29,7 +32,6 @@ class GaussianProfile:
         peaks_y: NDArray,
         sigmas: NDArray,
     ):
-
         return self._convolute_peaks(
             peaks_x,
             peaks_y,
@@ -37,11 +39,14 @@ class GaussianProfile:
             self.x_range,
         )
 
-    def get_metadata(self):
+    def get_constant_metadata(self):
         return {
             "profile": "gaussian",
             "x_range": self.x_range,
         }
+
+    def get_metadata(self):
+        return {}
 
     @staticmethod
     @numba.njit(cache=True)
@@ -83,7 +88,6 @@ class GaussianScherrerProfile:
         peaks_x: NDArray,
         peaks_y: NDArray,
     ):
-
         crystallite_size = self.crystallite_size_provider.get_crystallite_size()
         self.crystallite_size = crystallite_size
 
@@ -99,11 +103,16 @@ class GaussianScherrerProfile:
     def get_metadata(self) -> dict[str, Any]:
         return {
             **self.gaussian_profile.get_metadata(),
+            **{"crystallite_size": self.crystallite_size},
+        }
+
+    def get_constant_metadata(self) -> dict[str, Any]:
+        return {
+            **self.gaussian_profile.get_constant_metadata(),
             **{
                 "profile": "gaussian_scherrer",
                 "shape_factor": self.shape_factor,
                 "wavelength": self.wavelength,
-                "crystallite_size": self.crystallite_size,
             },
         }
 
@@ -138,7 +147,10 @@ class LorentzianProfile:
     ) -> NDArray:
         return self._convolute_peaks(peaks_x, peaks_y, gammas, self.x_range)
 
-    def get_metadata(self) -> dict:
+    def get_metadata(self):
+        return {}
+
+    def get_constant_metadata(self):
         return {
             "profile": "lorentzian",
             "x_range": self.x_range,
@@ -152,7 +164,6 @@ class LorentzianProfile:
         gammas: NDArray,
         x_range: tuple[float, float, int],
     ) -> NDArray:
-
         x_values = np.linspace(*x_range)
         profile = np.zeros_like(x_values)
 
@@ -199,10 +210,13 @@ class LorentzianStrainProfile:
     def get_metadata(self) -> dict[str, Any]:
         return {
             **self.lorentzian_profile.get_metadata(),
-            **{
-                "profile": "lorentzian_strain",
-                "strain": self.strain,
-            },
+            **{"strain": self.strain},
+        }
+
+    def get_constant_metadata(self) -> dict[str, Any]:
+        return {
+            **self.lorentzian_profile.get_constant_metadata(),
+            **{"profile": "lorentzian_strain"},
         }
 
     @staticmethod
@@ -225,7 +239,6 @@ class PseudoVoigtProfile:
         lorentzian_profile: LorentzianProfile,
         mixing_factor: float,
     ) -> None:
-
         if not (0 <= mixing_factor <= 1):
             raise ValueError("Mixing factor must be between 0 and 1.")
 
@@ -240,7 +253,6 @@ class PseudoVoigtProfile:
         gaussian_sigmas: NDArray,
         lorentzian_fwhms: NDArray,
     ) -> NDArray:
-
         gaussian_profile = self.gaussian_profile.convolute_peaks(
             peaks_x, peaks_y, gaussian_sigmas
         )
@@ -259,6 +271,12 @@ class PseudoVoigtProfile:
         return {
             **self.gaussian_profile.get_metadata(),
             **self.lorentzian_profile.get_metadata(),
+        }
+
+    def get_constant_metadata(self) -> dict[str, Any]:
+        return {
+            **self.gaussian_profile.get_constant_metadata(),
+            **self.lorentzian_profile.get_constant_metadata(),
             **{
                 "profile": "pseudo_voigt",
                 "mixing_factor": self.mixing_factor,
@@ -271,7 +289,6 @@ class PseudoVoigtCagliotiProfile:
         self,
         pseudo_voigt: PseudoVoigtProfile,
     ) -> None:
-
         self.pseudo_voigt = pseudo_voigt
 
     def convolute_peaks(
@@ -280,7 +297,6 @@ class PseudoVoigtCagliotiProfile:
         peaks_y: NDArray,
         caglioti_params: tuple[float, float, float],
     ) -> NDArray:
-
         fwhms_squared = self.caglioti_equation(peaks_x, *caglioti_params)
         fwhms = np.sqrt(fwhms_squared)
 
@@ -297,11 +313,12 @@ class PseudoVoigtCagliotiProfile:
         return pseudo_voigt_profile
 
     def get_metadata(self) -> dict[str, Any]:
+        return {**self.pseudo_voigt.get_metadata()}
+
+    def get_constant_metadata(self) -> dict[str, Any]:
         return {
-            **self.pseudo_voigt.get_metadata(),
-            **{
-                "profile": "pseudo_voigt_caglioti",
-            },
+            **self.pseudo_voigt.get_constant_metadata(),
+            **{"profile": "pseudo_voigt_caglioti"},
         }
 
     @staticmethod
@@ -312,7 +329,6 @@ class PseudoVoigtCagliotiProfile:
         V: float,
         W: float,
     ) -> np.ndarray:
-
         thetas = np.radians(peak_two_thetas) / 2
         tan_thetas = np.tan(thetas)
 
