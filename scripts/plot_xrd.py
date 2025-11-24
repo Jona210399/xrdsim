@@ -1,10 +1,16 @@
-import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 from pymatgen.core import Structure
 
+from xrdsim.augmentations.background import (
+    add_background,
+    compose_background_functions,
+    minmax_scale,
+    scale_invariant_linear_background,
+    sinusodal_background,
+)
+from xrdsim.augmentations.noise import add_gaussian_noise
 from xrdsim.calculator import XRDCalculator
 from xrdsim.constants import DEFAULT_SHAPEFACTOR, DEFAULT_WAVELENGTH
 from xrdsim.numpy.crystallite_size import ConstantCrystalliteSize
@@ -31,12 +37,7 @@ def get_xrd_calculator() -> XRDCalculator:
     )
 
 
-def background_function(x):
-    return 0.025 * np.sin(0.05 * x) + 0.1 * x / np.max(x)
-
-
 def main():
-
     path = Path.cwd().joinpath("data", "mp-1183076.cif")
 
     structure = Structure.from_file(path)
@@ -44,14 +45,20 @@ def main():
     calculator = get_xrd_calculator()
     two_thetas, intensities, meta = calculator.calculate(structure)
 
-    background = intensities + background_function(two_thetas[::-1])
-
-    intensities = (background - np.min(background)) / (
-        np.max(background) - np.min(background)
+    intensities = add_background(
+        two_thetas,
+        intensities,
+        compose_background_functions(
+            [
+                sinusodal_background,
+                scale_invariant_linear_background,
+            ]
+        ),
     )
 
-    intensity_noise = np.random.normal(loc=0, scale=0.0025, size=ANGLE_RANGE[2])
-    intensities = intensities + intensity_noise
+    intensities = add_gaussian_noise(intensities, scale=0.0025)
+    intensities = minmax_scale(intensities)
+
     plotter = XRDPlotter(two_thetas, intensities)
     fig, ax = plotter.plot()
     plt.show()
